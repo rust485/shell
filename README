@@ -1,0 +1,56 @@
+Compilation:
+  To compile my code, navigate to the directory containing the Makefile in your
+terminal, and type "make". Make file delete the already compiled version of shell if
+it exists, and then compile and create a binary fall called shell. To remove the
+compiled version of shell without creating it again, type "make clean".
+
+Running:
+  After compilation, type ./shell to start the shell. To exit the shell after you
+are finished using it, type "exit" and press enter. To exit prematurely, press ^C.
+
+Description:
+  history:
+    History defines a structure that represents a stored history of commands. history.c
+    provides functions to initialize history, print the history, add to the history,
+    destroy the history, and to get the history with a given number.
+  utils:
+    utils provides a few functions that perform string manipulation and validation, such as:
+      tokenize:
+        parses a string for a certain delimiter and returns the string in between
+        start and the first delimiter. The return string must be freed.
+      trim:
+        trims off '\t', '\n', and ' ' (defined in should_trim()) from the start
+        and end of the passed string, returns a new string that is the trimmed
+        form of the passed string.
+  shell:
+    shell contains the main function for my program. The program first starts
+    by obtaining the HOME environment variable for use with cd ~, and then defines
+    a directory (current directory) and last_directory (previous directory). The program
+    will continuously loop until the enters "exit" (defined as EXIT), or ^C.
+
+    the main method receives input, then calls execute with the given input. execute
+    will tokenize the input and pass it into execvp to be executed in a child process.
+
+    execute:
+      Execute first checks for proper syntax, and then will parse the validated command
+      and execute the command.
+
+      A complex command could look like this:
+        osh> cal; ls -l / | more   ; who ;
+      execute starts a while loop, which will first parse by semicolons, breaking
+      the input down into individual commands in a while loop.
+
+      Inside of this while loop, we break each semicolon delimited section into
+      piped commands. If there is a pipe following the current command, it will
+      set should_pipe to true and the child will overlay the write end of pipe_fd
+      pipe over stdout, then it will set last_was_piped to true, causing the next
+      process to overlay pipe_fd read over stdin.
+
+      Inside of the break down by pipes loop, we break each individual word down
+      by spaces and place them in the args array, which is passed to execvp.
+
+      The parent will either wait for the child's pid, or it will continue if an '&'
+      was entered at the end of the command.
+
+      Another note, is that my shell is also able to pipe to anything, not just more:
+      for example piping to grep works. 
